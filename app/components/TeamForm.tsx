@@ -1,12 +1,17 @@
 "use client"
 import React, { useState } from 'react';
+import { useTeams } from '../contexts/TeamContext';
 
 const TeamForm: React.FC = () => {
   const [teamName, setTeamName] = useState('');
+  const { addTeam } = useTeams();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Lógica para crear el equipo
+    if (teamName.trim()) {
+      addTeam(teamName);
+      setTeamName('');
+    }
   };
 
   return (

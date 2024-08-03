@@ -1,38 +1,73 @@
 import axios from 'axios';
-
-interface Team {
-  id: number;
-  name: string;
-  players: string[];
-}
+import { Player, Team } from './types';  // Asegúrate de ajustar la ruta según tu estructura de carpetas
 
 interface GetPlayers {
-  (): Promise<Team[]>;
+  (): Promise<Player[]>;
 }
 
 interface GetTeams {
-  (id: number): Promise<Team>;
+  (): Promise<Team[]>;
 }
 
-const apiUrl = 'https://api.apifootball.com/v3/players?league=eng.1';
+const apiUrl = 'https://apiv3.apifootball.com/';
 const apiToken = 'f50eeec1a82e1fa661c03ac07d770d028253266c5ddd122cf4270bb8ff954441';
 
-const getPlayers: GetPlayers = async (): Promise<Team[]> => {
-  const response = await axios.get(apiUrl, {
-    headers: {
-      'X-RapidAPI-Key': apiToken
+// Función para obtener jugadores
+const getPlayers: GetPlayers = async (): Promise<Player[]> => {
+  try {
+    const response = await axios.get(`${apiUrl}`, {
+      params: {
+        action: 'get_players',
+        league_id: '302', // Ajusta este valor según sea necesario
+        APIkey: apiToken,
+      },
+    });
+
+    // Verifica si la respuesta es un arreglo y devuelve solo los jugadores
+    if (Array.isArray(response.data)) {
+      return response.data;
+    } else {
+      console.error('La respuesta no es un arreglo:', response.data);
+      return [];
     }
-  });
-  return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error:', error.message);
+      console.error('Error response:', error.response);
+    } else {
+      console.error('Unexpected error:', error);
+    }
+    return [];
+  }
 };
 
-const getTeams: GetTeams = async (id: number): Promise<Team> => {
-  const response = await axios.get(`${apiUrl}/${id}`, {
-    headers: {
-      'X-RapidAPI-Key': apiToken
+// Función para obtener equipos
+const getTeams: GetTeams = async (): Promise<Team[]> => {
+  try {
+    const response = await axios.get(`${apiUrl}`, {
+      params: {
+        action: 'get_teams',
+        league_id: '302', // Ajusta este valor según sea necesario
+        APIkey: apiToken,
+      },
+    });
+
+    // Verifica si la respuesta es un arreglo y devuelve solo los equipos
+    if (Array.isArray(response.data)) {
+      return response.data;
+    } else {
+      console.error('La respuesta no es un arreglo:', response.data);
+      return [];
     }
-  });
-  return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error:', error.message);
+      console.error('Error response:', error.response);
+    } else {
+      console.error('Unexpected error:', error);
+    }
+    return [];
+  }
 };
 
 export { getPlayers, getTeams };

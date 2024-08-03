@@ -1,54 +1,57 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import { getPlayers } from '../../api/data';
+import { Player } from '../../api/types'; 
 
 const TeamCreate = () => {
-  const [teamName, setTeamName] = useState('');
-  const [selectedPlayers, setSelectedPlayers] = useState<any[]>([]);
-  const [players, setPlayers] = useState<any[] | []>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
 
-  const handleTeamNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTeamName(event.target.value);
-  };
-
-  const handlePlayerSelection = (player:any) => {
-    setSelectedPlayers((prevPlayers) => [...prevPlayers, player]);
-  };
-
-  const handleSubmit = async (event:any) => {
-    event.preventDefault();
-    // Create a new team with the selected players
-    // ...
-  };
-
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchPlayers = async () => {
-      const players = await getPlayers();
-      setPlayers(players);
+      try {
+        const data = await getPlayers();
+        // Verifica que data sea un arreglo antes de establecer el estado
+        if (Array.isArray(data)) {
+          setPlayers(data);
+        } else {
+          console.error('La respuesta de getPlayers no es un arreglo:', data);
+        }
+      } catch (error) {
+        console.error('Error fetching players:', error);
+      }
     };
+
     fetchPlayers();
   }, []);
 
+  const handlePlayerSelect = (playerId: string) => {
+    setSelectedPlayers((prevSelected) =>
+      prevSelected.includes(playerId)
+        ? prevSelected.filter((id) => id !== playerId)
+        : [...prevSelected, playerId]
+    );
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
+      <h2>Create Team</h2>
       <label>
-        Team Name:
-        <input type="text" value={teamName} onChange={handleTeamNameChange} />
+        Select Players:
+        <ul>
+          {players.map((player) => (
+            <li key={player.player_id}>
+              <input
+                type="checkbox"
+                value={player.player_id}
+                checked={selectedPlayers.includes(player.player_id)}
+                onChange={() => handlePlayerSelect(player.player_id)}
+              />
+              {player.player_name}
+            </li>
+          ))}
+        </ul>
       </label>
-      <ul>
-        {players.map((player) => (
-          <li key={player.player_id}>
-            <input
-              type="checkbox"
-              checked={selectedPlayers.includes(player.player_id)}
-              onChange={() => handlePlayerSelection(player)}
-            />
-            {player.player_name}
-          </li>
-        ))}
-      </ul>
-      <button type="submit">Create Team</button>
-    </form>
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-"use client"
+// app/components/TeamList.tsx
 import React from 'react';
 import { useTeams } from '../contexts/TeamContext';
 import TeamDetail from './TeamDetail';

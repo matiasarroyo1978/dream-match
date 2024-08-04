@@ -1,9 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-
-interface Player {
-  player_id: string;
-  player_name: string;
-}
+import { Player } from '../../api/types'; 
 
 interface Team {
   id: number;
@@ -34,7 +30,11 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
 
   const addTeam = (name: string) => {
     if (teams.length < 2) {
-      const newTeam = { id: Date.now(), name, players: [] };
+      const newTeam: Team = {
+        id: Date.now(),  // Genera una clave única
+        name,
+        players: []
+      };
       setTeams([...teams, newTeam]);
     }
   };

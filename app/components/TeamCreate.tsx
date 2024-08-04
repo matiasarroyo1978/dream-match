@@ -1,56 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import { getPlayers } from '../../api/data';
-import { Player } from '../../api/types'; 
+// app/components/TeamCreate.tsx
+import React, { useState } from 'react';
+import { useTeams } from '../contexts/TeamContext';
+import { Player } from '../../api/types';
 
-const TeamCreate = () => {
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
+const TeamCreate: React.FC = () => {
+  const { teams, addPlayerToTeam } = useTeams();
+  const [playerName, setPlayerName] = useState('');
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const fetchPlayers = async () => {
-      try {
-        const data = await getPlayers();
-        // Verifica que data sea un arreglo antes de establecer el estado
-        if (Array.isArray(data)) {
-          setPlayers(data);
-        } else {
-          console.error('La respuesta de getPlayers no es un arreglo:', data);
-        }
-      } catch (error) {
-        console.error('Error fetching players:', error);
-      }
-    };
-
-    fetchPlayers();
-  }, []);
-
-  const handlePlayerSelect = (playerId: string) => {
-    setSelectedPlayers((prevSelected) =>
-      prevSelected.includes(playerId)
-        ? prevSelected.filter((id) => id !== playerId)
-        : [...prevSelected, playerId]
-    );
+  const handleAddPlayer = () => {
+    if (selectedTeamId !== null && playerName.trim() !== '') {
+      const newPlayer: Player = {
+        player_id: Date.now().toString(),
+        player_name: playerName,
+        player_image: '',
+        player_type: '',
+        player_age: ''
+      };
+      addPlayerToTeam(selectedTeamId, newPlayer);
+      setPlayerName('');
+    }
   };
 
   return (
-    <div>
-      <h2>Create Team</h2>
-      <label>
-        Select Players:
-        <ul>
-          {players.map((player) => (
-            <li key={player.player_id}>
-              <input
-                type="checkbox"
-                value={player.player_id}
-                checked={selectedPlayers.includes(player.player_id)}
-                onChange={() => handlePlayerSelect(player.player_id)}
-              />
-              {player.player_name}
-            </li>
+    <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4">Agregar Jugadores</h2>
+      <div className="mb-4">
+        <select
+          value={selectedTeamId ?? ''}
+          onChange={(e) => setSelectedTeamId(Number(e.target.value))}
+          className="p-2 border rounded"
+        >
+          <option value="" disabled>Seleccione un equipo</option>
+          {teams.map(team => (
+            <option key={team.id} value={team.id}>{team.name}</option>
           ))}
-        </ul>
-      </label>
+        </select>
+      </div>
+      <div className="mb-4">
+        <input
+          type="text"
+          value={playerName}
+          onChange={(e) => setPlayerName(e.target.value)}
+          placeholder="Nombre del jugador"
+          className="p-2 border rounded w-full"
+        />
+      </div>
+      <button
+        className="bg-blue-600 text-white p-2 rounded"
+        onClick={handleAddPlayer}
+      >
+        Agregar Jugador
+      </button>
     </div>
   );
 };

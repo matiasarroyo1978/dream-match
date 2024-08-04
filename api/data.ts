@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { Player, Team } from './types';  // Asegúrate de ajustar la ruta según tu estructura de carpetas
-
+import { Player, Team } from './types';  
 interface GetPlayers {
   (): Promise<Player[]>;
 }
